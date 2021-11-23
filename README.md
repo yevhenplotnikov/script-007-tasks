@@ -1,4 +1,4 @@
 
-# PROJECT_NAME project
+# File server project Script-007
 
-Author is AUTHOR_NAME.
+Author is Yevhen Plotnikov.
