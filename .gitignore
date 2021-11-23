@@ -5,3 +5,10 @@ __pycache__/
 # virtual environment
 .venv*/
 venv*/
+
+# Pycharm IDE
+/.idea/
+
+# VS Code IDE
+/.vscode/
+*.code-workspace
