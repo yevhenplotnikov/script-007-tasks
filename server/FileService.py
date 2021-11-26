@@ -24,8 +24,8 @@ def change_dir(path: str, autocreate: bool = True) -> None:
         try:
             os.makedirs(path, mode=0o777, exist_ok=False)
             os.chdir(path)
-        except FileNotFoundError:
-            raise FileNotFoundError
+        except (ValueError, FileNotFoundError):
+            raise
     else:
         raise RuntimeError(f'Directory {path} does not exist. Enable autocreate parameter to create it')
 
@@ -118,10 +118,11 @@ def delete_file(filename: str) -> None:
         FileNotFoundError: if file does not exist.
         ValueError: if filename is invalid.
     """
-    if os.path.isdir(filename):
-        utils.delete_dir(filename)
     if not utils.is_name_valid(filename):
         raise ValueError(f'filename {filename} is invalid')
     if not os.path.exists(filename):
         raise FileNotFoundError(f'File {filename} does not exist')
-    os.remove(filename)
+    if os.path.isdir(filename):
+        utils.delete_dir(filename)
+    else:
+        os.remove(filename)

@@ -13,8 +13,6 @@ def main():
 
     FileService.change_dir(args.d)
 
-    pass
-
 
 if __name__ == "__main__":
     main()
