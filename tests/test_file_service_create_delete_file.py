@@ -4,15 +4,10 @@ import pytest
 
 from server import FileService
 
-default_path = '/work/files'
+default_path = 'files'
 new_file_name = 'new1'
 new_file_content = 'content1'
 multiple_files = {'new2': 'content2', 'new3': 'content3', 'new4': 'content4'}
-
-
-@pytest.fixture(autouse=True)
-def change_to_default_folder():
-    FileService.change_dir('/work/files/')
 
 
 @pytest.fixture()
@@ -22,14 +17,9 @@ def create_file():
 
 @pytest.fixture()
 def create_multiple_files():
-    FileService.change_dir('/work/files/multiple')
+    FileService.change_dir('files/multiple')
     for name, content in multiple_files.items():
         FileService.create_file(name, content)
-    yield
-    for name in multiple_files.keys():
-        FileService.delete_file(name)
-    FileService.change_dir('/work/files/')
-    FileService.delete_file('multiple')
 
 
 @pytest.fixture()

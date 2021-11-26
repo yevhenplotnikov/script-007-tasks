@@ -2,17 +2,16 @@
 
 import argparse
 
-from server.FileService import change_dir, get_files
+from server import FileService
 
 
 def main():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", default='/work/files', type=str, help="Path to file, root by default")
+    parser.add_argument("-d", default='files', type=str, help="Path to file, root by default")
     args = parser.parse_args()
 
-    change_dir(args.d)
-    print(get_files())
+    FileService.change_dir(args.d)
 
     pass
 

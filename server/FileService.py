@@ -1,5 +1,6 @@
 import datetime
 import os
+from utils import FileUtils as utils
 
 
 def change_dir(path: str, autocreate: bool = True) -> None:
@@ -13,33 +14,20 @@ def change_dir(path: str, autocreate: bool = True) -> None:
         RuntimeError: if directory does not exist and autocreate is False.
         ValueError: if path is invalid.
     """
-    default_path = '/work/files'
-    os.chdir(default_path)
     if type(path) != str:
         raise ValueError('path should be string')
-    if default_path not in os.path.dirname(path):
-        raise ValueError(f'Change dir upper than parent {default_path} is not allowed')
-    if not _is_name_valid(path):
+    if not utils.is_name_valid(path):
         raise ValueError(f'Path {path} is invalid')
-    elif os.path.lexists(path):
+    elif os.path.exists(path):
         os.chdir(path)
     elif autocreate:
         try:
             os.makedirs(path, mode=0o777, exist_ok=False)
             os.chdir(path)
-        except (ValueError, FileNotFoundError):
-            print(f'Path is invalid: {path}')
+        except FileNotFoundError:
+            raise FileNotFoundError
     else:
         raise RuntimeError(f'Directory {path} does not exist. Enable autocreate parameter to create it')
-
-
-def _is_name_valid(name: str) -> bool:
-    forbidden_symbols = '<>:"/\|?*'
-    name_wo_slashes = name.replace('/', '')
-    for symbol in forbidden_symbols:
-        if symbol in name_wo_slashes:
-            return False
-    return True
 
 
 def get_files() -> list:
@@ -78,9 +66,9 @@ def get_file_data(filename: str, with_content: bool = False, with_edit_date: boo
         RuntimeError: if file does not exist.
         ValueError: if filename is invalid.
     """
-    if not _is_name_valid(filename):
+    if not utils.is_name_valid(filename):
         raise ValueError('path is invalid')
-    elif os.path.lexists(filename):
+    elif os.path.exists(filename):
         file_info = {'name': filename,
                      'create_date': datetime.datetime.fromtimestamp(os.path.getctime(filename)),
                      'size': os.path.getsize(filename)}
@@ -112,12 +100,11 @@ def create_file(filename: str, content: str = None) -> dict:
     Raises:
         ValueError: if filename is invalid.
     """
-    if not _is_name_valid(filename) or not filename.strip():
+    if not utils.is_name_valid(filename) or not filename.strip():
         raise ValueError('filename is invalid')
-    file = open(filename, "w")
     if content:
-        file.write(content)
-    file.close()
+        with open(filename, "w") as file:
+            file.write(content)
     return get_file_data(file.name, with_content=True, with_edit_date=False)
 
 
@@ -128,18 +115,13 @@ def delete_file(filename: str) -> None:
         filename (str): filename
 
     Raises:
-        RuntimeError: if file does not exist.
+        FileNotFoundError: if file does not exist.
         ValueError: if filename is invalid.
     """
-    if not _is_name_valid(filename):
+    if os.path.isdir(filename):
+        utils.delete_dir(filename)
+    if not utils.is_name_valid(filename):
         raise ValueError(f'filename {filename} is invalid')
-    if not os.path.lexists(filename):
+    if not os.path.exists(filename):
         raise FileNotFoundError(f'File {filename} does not exist')
-    else:
-        if os.path.isdir(filename):
-            if os.listdir:
-                os.removedirs(filename)
-            else:
-                os.rmdir(filename)
-        else:
-            os.remove(filename)
+    os.remove(filename)
